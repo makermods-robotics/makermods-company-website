@@ -33,6 +33,63 @@
     padding: 2%;
     display: block;
   }
+  .addon-card {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: var(--s-4);
+    align-items: center;
+    padding: var(--s-5);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    transition: border-color var(--dur-base) var(--ease-std), box-shadow var(--dur-base) var(--ease-std);
+  }
+  .addon-card[data-added="true"] {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  .addon-image {
+    display: block;
+    width: 132px;
+    height: 132px;
+    aspect-ratio: 1;
+    object-fit: contain;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .addon-copy { display: flex; flex-direction: column; gap: 5px; }
+  .addon-title-row { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+  .addon-title { color: var(--ink); font-family: var(--font-display); font-size: 20px; font-weight: 700; text-decoration-color: var(--orange); }
+  .addon-price { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+  .addon-copy p { margin: 0; max-width: 52ch; color: var(--mute); font-size: 14px; line-height: 1.5; }
+  .quantity-control { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--line); }
+  .quantity-control label { color: var(--ink); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; }
+  .quantity-stepper { display: flex; flex-shrink: 0; border: 1px solid var(--ink); background: var(--surface); }
+  .quantity-stepper button { width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: var(--ink); font-size: 20px; cursor: pointer; }
+  .quantity-stepper button:disabled { color: var(--mute); cursor: default; opacity: 0.4; }
+  .quantity-stepper input { width: 56px; min-width: 0; padding: 0; border: 0; border-inline: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); font: 14px var(--font-mono); text-align: center; appearance: textfield; -moz-appearance: textfield; }
+  .quantity-stepper input::-webkit-inner-spin-button,
+  .quantity-stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .quantity-stepper :focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .addon-card .quantity-control { grid-column: 1 / -1; margin-top: 0; }
+  .cart-summary { margin-top: var(--s-5); border-top: 1px solid var(--line-2); }
+  .cart-line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-3) 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+  .cart-line[hidden] { display: none; }
+  .cart-line strong { color: var(--ink); font-family: var(--font-display); font-size: 18px; }
+  .cart-total { align-items: baseline; padding-top: var(--s-4); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .cart-total strong { font-size: 28px; }
+  @media (max-width: 600px) {
+    .addon-card,
+    .addon-card[data-added="true"] { grid-template-columns: 1fr; }
+    .addon-image { width: min(100%, 240px); height: auto; }
+  }
 </style>
 </head>
 <body>
@@ -79,7 +136,7 @@
         </div>
 
         <div class="opt-list" id="tier-list">
-          <div class="opt" data-tier="single" data-active="true">
+          <button type="button" class="opt" data-tier="single" data-active="true">
             <span class="opt-radio"></span>
             <span class="opt-body">
               <span class="opt-title-row">
@@ -89,9 +146,9 @@
               <span class="opt-desc">One 7-DOF metal arm. Ships with 2-in-1 end-effector, stabilizer plate, 24 V supply, CAN-to-USB adapter, and toolkit.</span>
             </span>
             <span class="opt-price">$2,499</span>
-          </div>
+          </button>
 
-          <div class="opt" data-tier="bimanual">
+          <button type="button" class="opt" data-tier="bimanual">
             <span class="opt-radio"></span>
             <span class="opt-body">
               <span class="opt-title-row">
@@ -101,9 +158,9 @@
               <span class="opt-desc">Two 7-DOF metal arms for two-handed manipulation. Full kit per arm.</span>
             </span>
             <span class="opt-price">$4,999</span>
-          </div>
+          </button>
 
-          <div class="opt" data-tier="leader-follower">
+          <button type="button" class="opt" data-tier="leader-follower">
             <span class="opt-radio"></span>
             <span class="opt-body">
               <span class="opt-title-row">
@@ -113,11 +170,43 @@
               <span class="opt-desc">Four arms total — 2 leader (teleop) + 2 follower (manipulation). Full kit per arm.</span>
             </span>
             <span class="opt-price">$9,999</span>
+          </button>
+        </div>
+
+        <div class="quantity-control">
+          <label id="build-quantity-label" for="metal-arm-quantity">Single arm quantity</label>
+          <div class="quantity-stepper">
+            <button id="metal-arm-decrease" type="button" aria-label="Decrease build quantity" disabled>−</button>
+            <input id="metal-arm-quantity" type="number" min="1" max="2147483647" step="1" value="1" required inputmode="numeric">
+            <button id="metal-arm-increase" type="button" aria-label="Increase build quantity">+</button>
+          </div>
+        </div>
+
+        <div class="config-label" style="margin-top:var(--s-5)">
+          <span>02 / Add-on</span>
+          <span class="val" id="addon-state">optional · not added</span>
+        </div>
+        <div class="addon-card" id="leader-addon" data-added="false">
+          <img class="addon-image" id="leader-arm-image" src="assets/maker-arm/star-arm-102-hd.jpg" alt="FashionStar Star Arm 102-HD (Leader), white and green 6+1 DoF teleoperation arm" width="554" height="554">
+          <div class="addon-copy">
+            <div class="addon-title-row">
+              <a class="addon-title" href="https://makermods.myshopify.com/products/fashionstar-star-arm-102-hd-leader" target="_blank" rel="noopener">Star Arm 102-HD (Leader)</a>
+              <span class="addon-price">$199</span>
+            </div>
+            <p>Add the FashionStar leader arm for teleoperation and leader-follower control.</p>
+          </div>
+          <div class="quantity-control">
+            <label for="leader-arm-quantity">Leader arm quantity</label>
+            <div class="quantity-stepper">
+              <button id="leader-arm-decrease" type="button" aria-label="Decrease Leader arm quantity" disabled>−</button>
+              <input id="leader-arm-quantity" type="number" min="0" max="2147483647" step="1" value="0" required inputmode="numeric">
+              <button id="leader-arm-increase" type="button" aria-label="Increase Leader arm quantity">+</button>
+            </div>
           </div>
         </div>
 
         <div class="config-label color-label" style="margin-top:var(--s-5)">
-          <span>02 / Finish</span>
+          <span>03 / Finish</span>
           <span class="val">black anodized</span>
         </div>
         <div class="swatches">
@@ -130,8 +219,18 @@
           all-CNC aluminum · open SDK · ROS1 / ROS2
         </div>
 
+        <div class="config-label" style="margin-top:var(--s-5)">
+          <span>04 / Cart</span>
+          <span class="val" id="cart-arm-count">1 Metal Arm</span>
+        </div>
+        <div class="cart-summary" aria-live="polite">
+          <div class="cart-line"><span id="cart-build-name">Metal Arm · Single × 1</span><strong id="cart-build-price">$2,499</strong></div>
+          <div class="cart-line" id="cart-leader-line" hidden><span id="cart-leader-name">Star Arm 102-HD (Leader)</span><strong id="cart-leader-price">$199</strong></div>
+          <div class="cart-line cart-total"><span>Product total</span><strong id="cart-total">$2,499</strong></div>
+        </div>
+
         <a id="config-buy-cta" class="btn btn-stencil btn-block" href="#" style="margin-top:24px">
-          [ BUY NOW <span class="b">·</span> <span id="cta-price">$2,499</span> → ]
+          [ CHECKOUT <span class="b">·</span> <span id="cta-price">$2,499</span> → ]
         </a>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--mute);margin-top:10px;letter-spacing:0.04em">
           <span id="summary-price">$2,499</span> + <span id="summary-shipping">$249</span> shipping · ships September 2026
@@ -139,14 +238,14 @@
 
         <div class="ship-note">
           <div class="num">[ HOW IT WORKS ]</div>
-          <p>1. Pay <span class="dyn-price">$2,499</span> in full at checkout.<br>
+          <p>1. Pay <span class="dyn-price">$2,499</span> in full for your selected build and Star Arm quantities at checkout.<br>
              2. We assemble, wire, and bench-test your arms.<br>
              3. Ships September 2026, tracked, from Shenzhen.</p>
         </div>
 
         <div class="ship-note">
           <div class="num">[ SHIPPING ]</div>
-          <p>Flat $249 per arm worldwide, calculated at checkout — <span class="dyn-arms">1 arm</span> on this build, so <span class="dyn-shipping">$249</span>. Duties and import taxes are the buyer's responsibility.</p>
+          <p>Flat $249 per Metal Arm worldwide, calculated at checkout — <span class="dyn-arms">1 Metal Arm</span> in your cart, so <span class="dyn-shipping">$249</span>. The Star Arm 102-HD leader adds no shipping. Duties and import taxes are the buyer's responsibility.</p>
         </div>
 
         <div class="ship-note">
@@ -208,73 +307,130 @@
   const TIERS = {
     'single': {
       label: 'single arm',
-      price: '$2,499',
-      shipping: '$249',
-      arms: '1 arm',
-      variantId: '52654970732861',
+      cartLabel: 'Metal Arm · Single',
+      quantityLabel: 'Single arm quantity',
+      price: 2499,
+      shipping: 249,
+      arms: 1,
+      variantId: 'gid://shopify/ProductVariant/52654970732861',
       image: 'assets/metal-arm/arm.png',
       imageAlt: 'MakerMods Metal Arm, black anodized',
       tag: '[ metal arm · black anodized ]',
     },
     'bimanual': {
       label: 'bimanual (2 arms)',
-      price: '$4,999',
-      shipping: '$498',
-      arms: '2 arms',
-      variantId: '52654970831165',
+      cartLabel: 'Metal Arm · Bimanual set (2 arms)',
+      quantityLabel: 'Bimanual set quantity (2 arms per set)',
+      price: 4999,
+      shipping: 498,
+      arms: 2,
+      variantId: 'gid://shopify/ProductVariant/52654970831165',
       image: 'assets/metal-arm/arm-bimanual.png',
       imageAlt: 'MakerMods Metal Arm bimanual setup, two arms',
       tag: '[ bimanual · 2 arms ]',
     },
     'leader-follower': {
       label: 'leader-follower (4 arms)',
-      price: '$9,999',
-      shipping: '$996',
-      arms: '4 arms',
-      variantId: '52654970863933',
+      cartLabel: 'Metal Arm · Leader-Follower set (4 arms)',
+      quantityLabel: 'Leader-Follower set quantity (4 arms per set)',
+      price: 9999,
+      shipping: 996,
+      arms: 4,
+      variantId: 'gid://shopify/ProductVariant/52654970863933',
       image: 'assets/metal-arm/arm-bimanual.png',
       imageAlt: 'MakerMods Metal Arm leader-follower setup',
       tag: '[ leader-follower · 4 arms ]',
     },
   };
 
-  let activeTier = 'single';
+  const STAR_ARM_PRICE = 199;
+  const STAR_ARM_VARIANT_ID = 'gid://shopify/ProductVariant/52875826594109';
+  const requestedBuild = new URLSearchParams(window.location.search).get('build');
+  let activeBuild = Object.prototype.hasOwnProperty.call(TIERS, requestedBuild) ? requestedBuild : 'single';
+  let buildQuantity = 1;
+  let leaderQuantity = 0;
+  const quantityInput = document.getElementById('metal-arm-quantity');
+  const leaderQuantityInput = document.getElementById('leader-arm-quantity');
 
-  const setText = (sel, text) => {
-    document.querySelectorAll(sel).forEach(el => { el.textContent = text; });
+  const readQuantity = (input, minimum) => {
+    const quantity = Number(input.value);
+    const valid = input.value.trim() !== '' && Number.isSafeInteger(quantity) && quantity >= minimum && quantity <= 2147483647;
+    input.setCustomValidity(valid ? '' : `Enter a whole number from ${minimum} to 2147483647.`);
+    return valid ? quantity : null;
   };
 
-  const apply = (tier) => {
-    const t = TIERS[tier];
-    if (!t) return;
-    activeTier = tier;
-    document.querySelectorAll('#tier-list .opt').forEach(el => {
-      el.dataset.active = (el.dataset.tier === tier) ? 'true' : 'false';
+  const money = (value) => `$${value.toLocaleString('en-US')}`;
+  const render = () => {
+    const build = TIERS[activeBuild];
+    const total = build.price * buildQuantity + STAR_ARM_PRICE * leaderQuantity;
+
+    document.querySelectorAll('#tier-list .opt:not(:disabled)').forEach((element) => {
+      element.dataset.active = element.dataset.tier === activeBuild ? 'true' : 'false';
+      element.setAttribute('aria-pressed', element.dataset.active);
     });
-    document.getElementById('config-build-val').textContent = t.label;
-    document.getElementById('cta-price').textContent = t.price;
-    document.getElementById('summary-price').textContent = t.price;
-    document.getElementById('summary-shipping').textContent = t.shipping;
-    setText('.dyn-price', t.price);
-    setText('.dyn-shipping', t.shipping);
-    setText('.dyn-arms', t.arms);
-    const img = document.getElementById('cg-real-img');
-    if (img && t.image) { img.src = t.image; img.alt = t.imageAlt || ''; }
-    const tag = document.getElementById('cg-tag');
-    if (tag && t.tag) tag.textContent = t.tag;
+    document.getElementById('config-build-val').textContent = build.label;
+    document.getElementById('cg-tag').textContent = build.tag;
+    const metalArmCount = build.arms * buildQuantity;
+    document.getElementById('cart-arm-count').textContent = `${metalArmCount} Metal Arm${metalArmCount === 1 ? '' : 's'}`;
+    document.getElementById('build-quantity-label').textContent = build.quantityLabel;
+    document.getElementById('summary-shipping').textContent = money(build.shipping * buildQuantity);
+    document.querySelectorAll('.dyn-price').forEach(el => { el.textContent = money(total); });
+    document.querySelectorAll('.dyn-shipping').forEach(el => { el.textContent = money(build.shipping * buildQuantity); });
+    document.querySelectorAll('.dyn-arms').forEach(el => { el.textContent = `${metalArmCount} Metal Arm${metalArmCount === 1 ? '' : 's'}`; });
+    const image = document.getElementById('cg-real-img');
+    image.src = build.image;
+    image.alt = build.imageAlt;
+    document.getElementById('cart-build-name').textContent = `${build.cartLabel} × ${buildQuantity}`;
+    document.getElementById('cart-build-price').textContent = money(build.price * buildQuantity);
+    document.getElementById('cart-leader-line').hidden = leaderQuantity === 0;
+    document.getElementById('cart-leader-name').textContent = `Star Arm 102-HD (Leader) × ${leaderQuantity}`;
+    document.getElementById('cart-leader-price').textContent = money(STAR_ARM_PRICE * leaderQuantity);
+    document.getElementById('cart-total').textContent = money(total);
+    const ctaPrice = document.getElementById('cta-price');
+    if (ctaPrice) ctaPrice.textContent = money(total);
+    document.getElementById('summary-price').textContent = money(total);
+    document.getElementById('addon-state').textContent = leaderQuantity > 0 ? `${leaderQuantity} leader arm${leaderQuantity === 1 ? '' : 's'} added` : 'optional · not added';
+    document.getElementById('leader-addon').dataset.added = leaderQuantity > 0 ? 'true' : 'false';
+    document.getElementById('metal-arm-decrease').disabled = buildQuantity <= 1;
+    document.getElementById('leader-arm-decrease').disabled = leaderQuantity === 0;
   };
 
-  document.querySelectorAll('#tier-list .opt').forEach(el => {
-    el.addEventListener('click', () => apply(el.dataset.tier));
+  document.querySelectorAll('#tier-list .opt:not(:disabled)').forEach((element) => {
+    element.addEventListener('click', () => {
+      activeBuild = element.dataset.tier;
+      render();
+    });
   });
 
-  async function createCheckoutUrl(variantId, quantity) {
-    const merchandiseId = 'gid://shopify/ProductVariant/' + variantId;
-    const res = await fetch(`https://${SHOPIFY_DOMAIN}/api/2024-04/graphql.json`, {
+  const bindQuantity = (prefix, input, minimum, update) => {
+    input.addEventListener('input', () => {
+      const quantity = readQuantity(input, minimum);
+      if (quantity !== null) {
+        update(quantity);
+        render();
+      }
+    });
+    for (const [action, delta] of [['decrease', -1], ['increase', 1]]) {
+      document.getElementById(`${prefix}-${action}`).addEventListener('click', () => {
+        const current = readQuantity(input, minimum);
+        const next = current === null ? minimum : Math.max(minimum, current + delta);
+        if (!Number.isSafeInteger(next) || next > 2147483647) return;
+        input.value = String(next);
+        input.setCustomValidity('');
+        update(next);
+        render();
+      });
+    }
+  };
+  bindQuantity('metal-arm', quantityInput, 1, (quantity) => { buildQuantity = quantity; });
+  bindQuantity('leader-arm', leaderQuantityInput, 0, (quantity) => { leaderQuantity = quantity; });
+
+  async function createCheckoutUrl(lines) {
+    const response = await fetch(`https://${SHOPIFY_DOMAIN}/api/2026-07/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN
+        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN,
       },
       body: JSON.stringify({
         query: `mutation CartCreate($input: CartInput!) {
@@ -283,44 +439,60 @@
             userErrors { field message }
           }
         }`,
-        variables: { input: { lines: [{ merchandiseId, quantity: quantity || 1 }] } }
-      })
+        variables: { input: { lines } },
+      }),
     });
-    const data = await res.json();
-    const errs = data?.data?.cartCreate?.userErrors;
-    if (errs && errs.length) throw new Error(errs.map(e => e.message).join('; '));
-    const url = data?.data?.cartCreate?.cart?.checkoutUrl;
-    if (!url) throw new Error('No checkout URL returned');
-    return url;
+    const data = await response.json();
+    if (!response.ok) throw new Error('Shopify checkout is temporarily unavailable. Please try again.');
+    if (data.errors?.length) throw new Error(data.errors.map(error => error.message).join('; '));
+    const errors = data?.data?.cartCreate?.userErrors;
+    if (errors?.length) throw new Error(errors.map((error) => error.message).join('; '));
+    const checkoutUrl = data?.data?.cartCreate?.cart?.checkoutUrl;
+    if (!checkoutUrl) throw new Error('No checkout URL returned');
+    return checkoutUrl;
   }
 
+  let checkoutPending = false;
   const cta = document.getElementById('config-buy-cta');
-  if (cta) {
-    cta.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const variantId = TIERS[activeTier]?.variantId;
-      if (!variantId) {
-        alert('This configuration is not yet available. Email isaac@makermods.ai to be notified.');
-        return;
-      }
-      const win = window.open('about:blank', '_blank');
-      const originalText = cta.innerHTML;
-      cta.style.pointerEvents = 'none';
-      cta.innerHTML = '[ OPENING CHECKOUT… ]';
-      try {
-        const url = await createCheckoutUrl(variantId, 1);
-        if (win && !win.closed) win.location.href = url;
-        else window.location.href = url;
-      } catch (err) {
-        if (win && !win.closed) win.close();
-        console.error('Checkout error:', err);
-        alert('Could not open checkout: ' + err.message);
-      } finally {
-        cta.style.pointerEvents = '';
-        cta.innerHTML = originalText;
-      }
-    });
-  }
+  cta.addEventListener('click', async (event) => {
+    event.preventDefault();
+    if (checkoutPending) return;
+    const arms = readQuantity(quantityInput, 1);
+    const leaders = readQuantity(leaderQuantityInput, 0);
+    if (arms === null || leaders === null) {
+      (arms === null ? quantityInput : leaderQuantityInput).reportValidity();
+      return;
+    }
+    buildQuantity = arms;
+    leaderQuantity = leaders;
+    const build = TIERS[activeBuild];
+    const lines = [{ merchandiseId: build.variantId, quantity: buildQuantity }];
+    if (leaderQuantity > 0) lines.push({ merchandiseId: STAR_ARM_VARIANT_ID, quantity: leaderQuantity });
+
+    checkoutPending = true;
+    cta.setAttribute('aria-busy', 'true');
+    const checkoutWindow = window.open('about:blank', '_blank');
+    const originalText = cta.innerHTML;
+    cta.style.pointerEvents = 'none';
+    cta.innerHTML = '[ OPENING CHECKOUT… ]';
+    try {
+      const checkoutUrl = await createCheckoutUrl(lines);
+      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.location.href = checkoutUrl;
+      else window.location.href = checkoutUrl;
+    } catch (error) {
+      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
+      console.error('Checkout error:', error);
+      alert(`Could not open checkout: ${error.message}`);
+    } finally {
+      checkoutPending = false;
+      cta.setAttribute('aria-busy', 'false');
+      cta.style.pointerEvents = '';
+      cta.innerHTML = originalText;
+      render();
+    }
+  });
+
+  render();
 })();
 </script>
 </body>
