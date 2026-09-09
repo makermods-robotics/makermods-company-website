@@ -1,0 +1,23 @@
+name: Metal Arm checkout
+
+on:
+  push:
+    paths:
+      - metal-arm-buy.html
+      - scripts/verify-metal-arm-checkout.mjs
+      - .github/workflows/metal-arm-checkout.yml
+  pull_request:
+    paths:
+      - metal-arm-buy.html
+      - scripts/verify-metal-arm-checkout.mjs
+      - .github/workflows/metal-arm-checkout.yml
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/verify-metal-arm-checkout.mjs
