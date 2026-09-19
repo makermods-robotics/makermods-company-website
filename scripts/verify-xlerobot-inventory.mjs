@@ -18,8 +18,8 @@ const formerBuyPage = read('buy.html');
 const navScript = read('scripts/site-nav.js');
 const mainScript = read('scripts/main.js');
 
-const xleMailto = 'mailto:isaac@makermods.ai?subject=XLeRobot%20sales%20inquiry';
-const elMailto = 'mailto:isaac@makermods.ai?subject=ElRobot%20sales%20inquiry';
+const xleMailto = 'mailto:ryan@makermods.ai,isaac@makermods.ai?subject=XLeRobot%20sales%20inquiry';
+const elMailto = 'mailto:ryan@makermods.ai,isaac@makermods.ai?subject=ElRobot%20sales%20inquiry';
 
 assert(homePage.includes('href="xlerobot.html"'), 'Homepage must retain the XLeRobot discovery card');
 assert(homePage.includes('href="elrobot.html"'), 'Homepage must retain the ElRobot discovery card');

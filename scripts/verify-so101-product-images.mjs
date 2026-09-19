@@ -26,7 +26,7 @@ class FakeElement {
   }
 }
 
-const tierIds = ['pair', 'bimanual', 'boothPair', 'boothBimanual'];
+const tierIds = ['pair', 'bimanual', 'boothBimanual'];
 const optionNodes = tierIds.map((id) => new FakeElement({ tier: id }));
 const options = new FakeElement();
 options.querySelectorAll = (selector) => selector === '.opt' ? optionNodes : [];
@@ -92,12 +92,6 @@ const expectedTiers = {
     alt: 'SO-101 bimanual kit with two leader arms and two follower arms',
     fit: 'contain',
     note: 'SO101 bimanual kit.',
-  },
-  boothPair: {
-    image: 'assets/open-booth/openbooth-bimanual product.png',
-    alt: 'OpenBooth with SO101 robots inside the training enclosure',
-    fit: 'contain',
-    note: 'SO101 leader + follower kit with OpenBooth.',
   },
   boothBimanual: {
     image: 'assets/open-booth/openbooth-bimanual product.png',

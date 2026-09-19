@@ -22,13 +22,13 @@ const pages = {
   'xlerobot.html': {
     active: 'xlerobot',
     label: 'Contact sales →',
-    href: 'mailto:isaac@makermods.ai?subject=XLeRobot%20sales%20inquiry',
+    href: 'mailto:ryan@makermods.ai,isaac@makermods.ai?subject=XLeRobot%20sales%20inquiry',
   },
   'buy.html': { label: '← XLeRobot', href: '/xlerobot' },
   'elrobot.html': {
     active: 'elrobot',
     label: 'Contact sales →',
-    href: 'mailto:isaac@makermods.ai?subject=ElRobot%20sales%20inquiry',
+    href: 'mailto:ryan@makermods.ai,isaac@makermods.ai?subject=ElRobot%20sales%20inquiry',
   },
   'open-booth-buy.html': { active: 'openbooth', label: '← back', href: '/openbooth' },
   'makermods-app/index.html': {
